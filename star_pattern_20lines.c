@@ -22,41 +22,33 @@ void world_to_screen(Point world, int *screen_x, int *screen_y) {
     *screen_y = CENTER_Y - (int)(world.y * SCALE);
 }
 
-// Color based on angle: vertical = red, horizontal = teal
-// Red -> Orange -> Yellow -> Green -> Teal
+// relationship between color and angle
 Color get_color_for_angle(Point start, Point end) {
     Color c;
     
-    // Calculate the angle of the line
     float dx = end.x - start.x;
     float dy = end.y - start.y;
     float angle = atan2(fabs(dy), fabs(dx)); // Angle from horizontal (0 to PI/2)
     
-    // angle = 0 means horizontal (teal)
-    // angle = PI/2 means vertical (red)
     float t = angle / (M_PI / 2.0); // Normalize to 0-1, where 1 = vertical, 0 = horizontal
     
-    // Create rainbow gradient from teal (t=0) to red (t=1)
+    // Create rainbow gradient
     if (t < 0.25) {
-        // Teal to Green: t = 0 to 0.25
         float local_t = t / 0.25;
         c.r = 0;
         c.g = 255;
         c.b = (unsigned char)(255 * (1 - local_t));
     } else if (t < 0.5) {
-        // Green to Yellow: t = 0.25 to 0.5
         float local_t = (t - 0.25) / 0.25;
         c.r = (unsigned char)(255 * local_t);
         c.g = 255;
         c.b = 0;
     } else if (t < 0.75) {
-        // Yellow to Orange: t = 0.5 to 0.75
         float local_t = (t - 0.5) / 0.25;
         c.r = 255;
         c.g = (unsigned char)(255 * (1 - local_t * 0.5)); // Keep some green
         c.b = 0;
     } else {
-        // Orange to Red: t = 0.75 to 1.0
         float local_t = (t - 0.75) / 0.25;
         c.r = 255;
         c.g = (unsigned char)(128 * (1 - local_t)); // Fade out remaining green
@@ -107,7 +99,7 @@ int main(int argc, char *argv[]) {
     SDL_Event e;
     bool quit = false;
     int line_count = 0;
-    int total_lines = 84; // 20 lines per quadrant * 4 quadrants + 4 axis lines
+    int total_lines = 84; // 20 lines per quadrant * 4 quadrants
     
     unsigned int last_time = SDL_GetTicks();
     
@@ -125,7 +117,7 @@ int main(int argc, char *argv[]) {
         Color color;
         Point start, end;
         
-        // Quadrant 1: Top-right - from (0,200) to (10,0), then (0,190) to (20,0), etc.
+        // quadrant 1
         for (int i = 0; i < 20 && current_line < line_count; i++, current_line++) {
             start.x = 0;
             start.y = 200 - i * 10;
@@ -135,7 +127,6 @@ int main(int argc, char *argv[]) {
             draw_line(renderer, start, end, color);
         }
         
-        // Perfect vertical line (0,0) to (0,200) - RED
         if (current_line < line_count) {
             start.x = 0; start.y = 0;
             end.x = 0; end.y = 200;
@@ -144,7 +135,6 @@ int main(int argc, char *argv[]) {
             current_line++;
         }
         
-        // Perfect horizontal line (0,0) to (200,0) - TEAL
         if (current_line < line_count) {
             start.x = 0; start.y = 0;
             end.x = 200; end.y = 0;
@@ -153,7 +143,7 @@ int main(int argc, char *argv[]) {
             current_line++;
         }
         
-        // Quadrant 2: Top-left - from (0,200) to (-10,0), then (0,190) to (-20,0), etc.
+        // Quadrant 2
         for (int i = 0; i < 20 && current_line < line_count; i++, current_line++) {
             start.x = 0;
             start.y = 200 - i * 10;
@@ -162,8 +152,7 @@ int main(int argc, char *argv[]) {
             color = get_color_for_angle(start, end);
             draw_line(renderer, start, end, color);
         }
-        
-        // Perfect horizontal line (0,0) to (-200,0) - TEAL
+
         if (current_line < line_count) {
             start.x = 0; start.y = 0;
             end.x = -200; end.y = 0;
@@ -172,7 +161,7 @@ int main(int argc, char *argv[]) {
             current_line++;
         }
         
-        // Quadrant 3: Bottom-left - from (0,-200) to (-10,0), then (0,-190) to (-20,0), etc.
+        // quadrent three
         for (int i = 0; i < 20 && current_line < line_count; i++, current_line++) {
             start.x = 0;
             start.y = -200 + i * 10;
@@ -182,7 +171,7 @@ int main(int argc, char *argv[]) {
             draw_line(renderer, start, end, color);
         }
         
-        // Perfect vertical line (0,0) to (0,-200) - RED
+   
         if (current_line < line_count) {
             start.x = 0; start.y = 0;
             end.x = 0; end.y = -200;
@@ -191,7 +180,7 @@ int main(int argc, char *argv[]) {
             current_line++;
         }
         
-        // Quadrant 4: Bottom-right - from (0,-200) to (10,0), then (0,-190) to (20,0), etc.
+        // quadrant 4
         for (int i = 0; i < 20 && current_line < line_count; i++, current_line++) {
             start.x = 0;
             start.y = -200 + i * 10;
